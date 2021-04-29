@@ -1,0 +1,12 @@
+HANDSHAKE - The server response to a CLIENT-INITIATED handshake.
+
+NOTE: THIS IS ONLY SENT IF THE CLIENT HANDSHAKE IS VALID - AN INVALID HANDSHAKE WILL RESULT IN AN ERROR BEING SENT
+    INSTEAD OF THIS MESSAGE!
+
+<OP:uint8><ID:uint16>
+
+OP: uint8
+    The operation code. In this case, 0x00
+
+ID: uint16
+    An unique ID assigned to the client to identify it for the duration of its connection.

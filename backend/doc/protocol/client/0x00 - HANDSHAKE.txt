@@ -1,0 +1,18 @@
+HANDSHAKE - a CLIENT-INITIATED exchange between server and client that initializes the connection. This should be sent
+as soon as a WS connection is confirmed with the server.
+
+<OP:uint8><TYPE:cString><UID:cString>
+
+LENGTH = 97
+
+OP: uint8
+    The operation code. In this case, 0x00
+
+TYPE: cString (MAXLENGTH = 64)
+    The type describes the type of the module connecting. Each module type should have a unique TYPE that is consistent
+    between all different modules. This can be thought of as a model identifier. For example, a motor driver for a
+    roomba motor might have a type of `ROOMBA_MOTOR_DRIVER_V1`.
+
+UID: cString (MAXLENGTH = 32)
+    A unique ID that can be used to identify individual modules. This should usually be the internal MAC of the ESP
+    chip in the format of XX:XX:XX:XX:XX:XX

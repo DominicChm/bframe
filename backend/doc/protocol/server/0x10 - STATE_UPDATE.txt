@@ -1,0 +1,11 @@
+STATE_UPDATE - Updates the server's state on the client by sending value updates.
+
+<OP><DATA>
+
+OP: uint8
+    The operation code. In this case, 0x10
+
+DATA: Any number of <INDEX><data> blocks.
+    An update (`data`) to the variable that corresponds with `INDEX`. `data` is of arbitrary length, and can represent
+    anything from a uint8 to a char array (string). Variable-index pairs are determined by the module definition. They
+    must match between the server and client.
