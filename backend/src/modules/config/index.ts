@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 
     //--------------Network settings----------------//
 
@@ -9,5 +9,8 @@ module.exports = {
     //The resolution of time data forwarded to clients in real-time. Follows a log10 scale (I.E -1 = 0.1s resolution)
     forward_resolution: -2,
 
+
+    // ----------- User-manager settings ------------//
+    port: 420,
 
 };

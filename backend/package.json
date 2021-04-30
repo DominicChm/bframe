@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/joi": "^14.3.4",
+    "@types/mocha": "^8.2.2",
     "@types/node": "^14.14.19",
     "@types/winston": "^2.4.4",
     "@types/ws": "^7.4.0",
@@ -22,6 +23,7 @@
     "influx": "^5.6.3",
     "ipaddr.js": "^2.0.0",
     "joi": "^17.3.0",
+    "mocha": "^8.3.2",
     "ts-node": "^9.1.1",
     "winston": "^3.3.3",
     "ws": "^7.3.1"

@@ -41,6 +41,9 @@ There isn't much to say, aside from this is an extraordinarily ambitious project
     
 - [ ] Node-RED integration
   
+- [ ] Sessions/Security?
+
+
 # Comically Short Frontend Todo 
 - [ ] Frontend
 

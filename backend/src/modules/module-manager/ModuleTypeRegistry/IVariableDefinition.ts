@@ -13,5 +13,7 @@ export interface IVariableDefinition {
     typical_max?: number;
     typical_min?: number;
     outside_typical?: (raw_val: any, variable_definition: IVariableDefinition) => boolean;
-
 }
+
+
+
