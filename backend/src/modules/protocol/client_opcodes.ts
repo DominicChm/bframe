@@ -1,6 +1,6 @@
-import {parse_HANDSHAKE} from "./parse_HANDSHAKE";
-import {parse_ERROR} from "./parse_ERROR";
-import {parse_STATE_UPDATE} from "./parse_STATE_UPDATE";
+import {parse_HANDSHAKE} from "./client/0x00_HANDSHAKE";
+import {parse_ERROR} from "./client/0xFF_ERROR";
+import {parse_STATE_UPDATE} from "./client/0x10_STATE_UPDATE";
 
 /**
  * Defines opcodes for packets incoming from clients.

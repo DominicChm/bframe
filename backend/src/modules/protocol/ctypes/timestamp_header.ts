@@ -1,6 +1,7 @@
-import {ICType} from "c-type-util";
+import {c_struct, ICType, uint16, uint8} from "c-type-util";
 import {id_ctype} from "./id";
 import {timestamp_ctype} from "./timestamp";
+import {opcode_ctype} from "./opcode";
 
 
 export interface ITimestampHeader {
@@ -12,27 +13,17 @@ export interface ITimestampHeader {
 /**
  * The ctype for parsing the protocol's common header, which includes a timestamp and id.
  */
-export let timestamp_header_ctype: ICType = {
-    size: id_ctype.size + timestamp_ctype.size,
-    readBE(buf: Buffer, offset: number | undefined): ITimestampHeader {
-        return {
-            id: id_ctype.readBE(buf, offset),
-            timestamp: timestamp_ctype.readBE(buf, offset + id_ctype.size)
-        }
+export let timestamp_header_ctype: ICType = c_struct([
+    {
+        name: "op",
+        type: opcode_ctype,
     },
-    readLE(buf: Buffer, offset: number | undefined): ITimestampHeader {
-        return {
-            id: id_ctype.readLE(buf, offset),
-            timestamp: timestamp_ctype.readLE(buf, offset + id_ctype.size)
-        }
+    {
+        name: "id",
+        type: id_ctype,
     },
-    writeBE(data: ITimestampHeader, buf: Buffer, offset: number | undefined): void {
-        id_ctype.writeBE(data.id, buf, offset);
-        timestamp_ctype.writeBE(data.timestamp, buf, offset + id_ctype.size)
-    },
-    writeLE(data: ITimestampHeader, buf: Buffer, offset: number | undefined): void {
-        id_ctype.writeLE(data.id, buf, offset);
-        timestamp_ctype.writeLE(data.timestamp, buf, offset + id_ctype.size)
+    {
+        name: "timestamp",
+        type: timestamp_ctype
     }
-
-}
+])

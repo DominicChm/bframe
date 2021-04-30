@@ -23,23 +23,23 @@ export interface IHandshake {
     uid: string,
 }
 
-export function parse_HANDSHAKE(buf: Buffer, endian: "little" | "big" = "little"): IHandshake {
-    const handshake_ctype = end(c_struct([
-        {
-            name: "opcode",
-            type: opcode_ctype
-        },
-        {
-            name: "type",
-            type: c_string(64)
-        },
-        {
-            name: "uid",
-            type: c_string(32)
-        }
-    ]), endian)
+const handshake_ctype = c_struct([
+    {
+        name: "op",
+        type: opcode_ctype
+    },
+    {
+        name: "type",
+        type: c_string(64)
+    },
+    {
+        name: "uid",
+        type: c_string(32)
+    }
+])
 
-    const parsed = handshake_ctype.read(buf);
+export function parse_HANDSHAKE(buf: Buffer, endian: "little" | "big" = "little"): IHandshake {
+    const parsed = end(handshake_ctype, endian).read(buf);
 
     return {
         uid: parsed.uid,
