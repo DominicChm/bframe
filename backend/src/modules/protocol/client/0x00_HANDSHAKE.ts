@@ -18,7 +18,7 @@ import {opcode_ctype} from "../ctypes/opcode";
  *
  */
 
-export interface IHandshake {
+export interface IClientHandshake {
     type: string,
     uid: string,
 }
@@ -38,7 +38,7 @@ const handshake_ctype = c_struct([
     }
 ])
 
-export function parse_HANDSHAKE(buf: Buffer, endian: "little" | "big" = "little"): IHandshake {
+export function parse_HANDSHAKE(buf: Buffer, endian: "little" | "big" = "little"): IClientHandshake {
     const parsed = end(handshake_ctype, endian).read(buf);
 
     return {

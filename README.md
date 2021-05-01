@@ -16,7 +16,8 @@ There isn't much to say, aside from this is an extraordinarily ambitious project
     - [ ] Variable-length variable indexing (support 16-bit var index)
     - [ ] Event Firing
     - [ ] Protocol Parsers
-        - [ ] Handshake (compose)
+        - [ ] Error (compose/parse)
+        - [ ] Handshake (compose/parse)
         - [ ] State Updates (compose/parse)
         - [ ] State Updates (compose/parse)
     - [ ] Endpoints

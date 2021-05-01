@@ -1,8 +1,7 @@
-import test from 'ava';
 import {parse_HANDSHAKE} from "../0x00_HANDSHAKE";
 import {c_string} from "c-type-util";
 
-test('handshake parses buffer', t => {
+it('handshake parses buffer', () => {
     const type_ctype = c_string(64);
     const uid_ctype = c_string(32);
 
@@ -19,5 +18,6 @@ test('handshake parses buffer', t => {
     uid_ctype.writeLE(test_data.uid, buf, 64 + 1);
 
     const parsed = parse_HANDSHAKE(buf);
-    t.deepEqual(parsed, test_data);
+
+    expect(parsed).toEqual(test_data);
 });

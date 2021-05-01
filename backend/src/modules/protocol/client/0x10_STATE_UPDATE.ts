@@ -21,13 +21,13 @@ import {timestamp_header_ctype} from "../ctypes/timestamp_header";
  *
  */
 
-export interface IStateUpdate {
+export interface IClientStateUpdate {
     id: number,
     timestamp: number,
     data: Buffer
 }
 
-export function parse_STATE_UPDATE(buf: Buffer, endian: "little" | "big" = "little"): IStateUpdate {
+export function parse_STATE_UPDATE(buf: Buffer, endian: "little" | "big" = "little"): IClientStateUpdate {
     const header_data = end(timestamp_header_ctype, endian).read(buf);
 
     return {
