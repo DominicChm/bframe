@@ -28,7 +28,14 @@ There isn't much to say, aside from this is an extraordinarily ambitious project
         - [ ] Module testing
         - [ ] Generalized Message Parsing
         - [x] Module definition interfaces
-    
+
+- [ ] User Manager
+  - [ ] Write Graphql-esq Websocket Schema
+  - [ ] Websocket Endpoint
+  - [ ] Client Manager Class
+    - [ ] Listener to Module Manager
+    - [ ] Interface to client
+
 - [ ] Modules
     - [ ] Simple Potentiometer
 
@@ -45,5 +52,17 @@ There isn't much to say, aside from this is an extraordinarily ambitious project
 
 
 # Comically Short Frontend Todo 
-- [ ] Frontend
+
+## Proof of Concept
+- [ ] Wireframe Dashboard Component Grid
+- [ ] Websocket Interface
+- [ ] Standard Live Data Vizualization API
+- [ ] Number Component
+
+## Featureset 1
+- [ ] Dashboard Component Menu
+- [ ] HTTP API Schema for Metadata (stuff like getting a list of sensors or dashboard components)
+- [ ] Wireframe System Admin page
+- [ ] Write API Schema for Admin endpoint (ws/http)
+  
 
