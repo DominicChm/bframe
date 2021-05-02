@@ -4,9 +4,8 @@ import {timestamp_header_ctype} from "../ctypes/timestamp_header";
 /**
  * ERROR
  * =====
- * `<OP:uint8><ID:uint16><CODE:uint16><MSG:cString>`<br>
- * a CLIENT-INITIATED exchange between server and client that initializes the connection. This should be sent
- * as soon as a WS connection is confirmed with the server.
+ * `<OP:uint8><ID:uint16><TIMESTAMP:uint16><CODE:uint16><MSG:cString>`<br>
+ * A generic error, passed from client to server
  *
  * Format Description
  * ------------------

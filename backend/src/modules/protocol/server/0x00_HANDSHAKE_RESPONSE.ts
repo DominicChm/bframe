@@ -37,7 +37,7 @@ const handshake_ctype = c_struct([
 export function compose_HANDSHAKE_RESPONSE(id, endian: "little" | "big" = "little"): Buffer {
     const buf = Buffer.alloc(handshake_ctype.size);
     end(handshake_ctype, endian).write({
-        op: 0x10,
+        op: 0x000,
         id
     }, buf);
 
