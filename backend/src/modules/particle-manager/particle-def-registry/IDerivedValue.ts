@@ -39,23 +39,23 @@ export interface IDerivedValue {
 }
 
 // .on("data", () => {});
-let test = {
-    timestamp: 12343, // in ms
-    moduleType: "random_module",
-    moduleDef: IModuleTypeDefinition,
-
-    previousState: {
-        num: 1,
-        val: 69,
-    },
-    patch: {
-        num: 2,
-    },
-    nextState: {
-        num: 2,
-        val: 69,
-    }
-}
-
-
-.onModule("21:33:21:44:12:12", "data", () => {})
+// let test = {
+//     timestamp: 12343, // in ms
+//     moduleType: "random_module",
+//     moduleDef: IModuleTypeDefinition,
+//
+//     previousState: {
+//         num: 1,
+//         val: 69,
+//     },
+//     patch: {
+//         num: 2,
+//     },
+//     nextState: {
+//         num: 2,
+//         val: 69,
+//     }
+// }
+//
+//
+// .onModule("21:33:21:44:12:12", "data", () => {})

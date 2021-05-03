@@ -1,6 +1,6 @@
 import {c_string, c_struct, end} from "c-type-util";
 import {opcode_ctype} from "../ctypes/opcode";
-import {IModuleTypeDefinition} from "../../module-manager/ModuleTypeRegistry/IModuleTypeDefinition";
+import {IModuleTypeDefinition} from "../../particle-manager/particle-def-registry/IModuleTypeDefinition";
 import {timestamp_header_ctype} from "../ctypes/timestamp_header";
 
 /**
