@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Particle Client</title>
+    <style>
+        html {
+            font-family: 'Lucida Console', 'Lucida Sans Unicode', arial, sans-serif;
+        }
+
+        :is(h1, h2, h3, h4, h5, h6, p) {
+            margin: 0.25rem;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            background-color: #333333;
+        }
+
+        .ui-container {
+            padding: 1rem;
+            background-color: #FFF;
+            border-radius: 0.5rem;
+            box-shadow: #000 0 0 10px;
+            width: 400px;
+        }
+
+        .tile {
+            border-radius: .25rem;
+            border: #aaa solid 1px;
+            margin: 1rem 0;
+        }
+
+        .grid {
+            display: grid;
+            align-items: center;
+            padding: .5rem;
+            gap: .5rem;
+        }
+
+        .settings-grid {
+            grid-template-columns: 6rem auto;
+            grid-template-rows: auto;
+        }
+
+        .controls-grid {
+            grid-template-columns: fit-content(400px) auto;
+            grid-template-rows: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="ui-container">
+    <h2>Test Particle</h2>
+    <div class="tile">
+        <h4>Settings</h4>
+        <div class="settings-grid grid">
+            <p>TypeName</p>
+            <input disabled value="test-particle-1"/>
+
+            <p>UID</p>
+            <input value="unique_id"/>
+
+
+        </div>
+    </div>
+    <div class="tile">
+        <h4>Controls</h4>
+        <div class="grid controls-grid">
+            <code>slider_val (<span id="slider_val">val</span>)</code>
+            <input type="range"/>
+
+            <code>str_val</code>
+            <input type="text"/>
+
+            <button style="grid-column-end: span 2">Update</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
