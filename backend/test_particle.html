@@ -24,17 +24,36 @@
         }
 
         .ui-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            grid-template-rows: auto 1fr;
             padding: 1rem;
             background-color: #FFF;
             border-radius: 0.5rem;
             box-shadow: #000 0 0 10px;
-            width: 400px;
+            width: 800px;
+            height: 800px;
+        }
+
+        .tile-scroller {
+            overflow-y: auto;
+            grid-column: 1;
+            grid-row: 2;
+            min-height: 0;
+
+        }
+
+        .tile-container {
+            display: flex;
+            overflow-x: hidden;
+            flex-flow: column;
         }
 
         .tile {
             border-radius: .25rem;
             border: #aaa solid 1px;
-            margin: 1rem 0;
+            margin: .5rem;
+            grid-column: 1;
         }
 
         .grid {
@@ -53,35 +72,226 @@
             grid-template-columns: fit-content(400px) auto;
             grid-template-rows: auto;
         }
+
+        .indicator {
+            display: inline-block;
+            font-size: 1rem;
+            vertical-align: middle;
+            border-radius: .25rem;
+            margin: 0.25rem;
+            text-align: center;
+            background-color: grey;
+            font-weight: bolder;
+
+        }
+
+        .log-output-tile {
+            grid-row: 2;
+            grid-column: 2;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .log-output-container {
+            overflow: scroll;
+            overscroll-behavior-y: contain;
+            scroll-snap-type: y mandatory;
+
+            height: 0;
+            flex-shrink: 1;
+            flex-grow: 1;
+        }
+
+        .log-item {
+            display: block;
+        }
+
+        .log-info {
+            color: dodgerblue;
+        }
+
+        .log-error {
+            color: crimson;
+        }
+
+        .log-warn {
+            color: darkorange;
+        }
+
     </style>
 </head>
 <body>
 <div class="ui-container">
     <h2>Test Particle</h2>
-    <div class="tile">
-        <h4>Settings</h4>
-        <div class="settings-grid grid">
-            <p>TypeName</p>
-            <input disabled value="test-particle-1"/>
+    <code id="connectionIndicator" class="indicator indicator-disconnected"><b>DISCONNECTED</b></code>
+    <div class="log-output-tile tile">
+        <h4>Log</h4>
+        <div id="logOutput" class="log-output-container"></div>
+    </div>
+    <div class="tile-scroller">
+        <div class="tile-container">
+            <div class="tile">
+                <h4>Settings</h4>
+                <div class="settings-grid grid">
+                    <p>TypeName</p>
+                    <input disabled id="typeNameInput" value="test-particle-1"/>
 
-            <p>UID</p>
-            <input value="unique_id"/>
+                    <p>UID</p>
+                    <input id="uidInput" value="unique_id"/>
+                    <p>IP</p>
+                    <span class="pair-container" style="display: flex">
+                        <input id="connectionUrlInput" style="flex: 1" value="ws://localhost:369"/>
+                        <button id="toggleConnectBtn">Connect</button>
+                    </span>
 
 
+                </div>
+            </div>
+            <div class="tile">
+                <h4>Controls</h4>
+                <div class="grid controls-grid">
+                    <code>slider_val (<span id="slider_val">val</span>)</code>
+                    <input type="range"/>
+
+                    <code>str_val</code>
+                    <input type="text"/>
+
+                    <button style="grid-column-end: span 2">Update</button>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="tile">
-        <h4>Controls</h4>
-        <div class="grid controls-grid">
-            <code>slider_val (<span id="slider_val">val</span>)</code>
-            <input type="range"/>
 
-            <code>str_val</code>
-            <input type="text"/>
-
-            <button style="grid-column-end: span 2">Update</button>
-        </div>
-    </div>
 </div>
+
+<script>
+    function log(msg, level = "info") {
+        const el = document.createElement("code");
+        const label = document.createElement("span");
+        switch (level) {
+            case "warn":
+                label.innerText = "[WARN]"
+                label.classList.add("log-warn")
+                break;
+            case "error":
+                label.innerText = "[ERROR]"
+                label.classList.add("log-error")
+                break;
+            default:
+                label.innerText = "[INFO]"
+                label.classList.add("log-info")
+                break;
+        }
+        el.classList.add("log-item")
+        el.append(label);
+        el.append(" ");
+        el.append(msg);
+
+        document.getElementById("logOutput").append(el);
+        document.getElementById("logOutput").scrollTop = document.getElementById("logOutput").scrollHeight;
+    }
+
+    //https://stackoverflow.com/questions/5717093/check-if-a-javascript-string-is-a-url
+    function validURL(str) {
+        let url;
+
+        try {
+            url = new URL(str);
+        } catch (_) {
+            return false;
+        }
+
+        return url.protocol === "ws:" || url.protocol === "wss:";
+    }
+
+    var ws = null;
+</script>
+
+
+<script>
+    const connectionUrl = document.getElementById("connectionUrlInput")
+    const toggleConnectionBtn = document.getElementById("toggleConnectBtn");
+    const connectionIndicator = document.getElementById("connectionIndicator");
+
+    toggleConnectionBtn.addEventListener("click", connect);
+
+    function onWsOpen() {
+        log("Connected")
+        connectionIndicator.style.backgroundColor = "green";
+        connectionIndicator.innerText = "Connected";
+
+        toggleConnectionBtn.disabled = false;
+        toggleConnectionBtn.innerText = "Disconnect";
+        toggleConnectionBtn.removeEventListener("click", connect)
+        toggleConnectionBtn.addEventListener("click", disconnect)
+
+        handshake();
+    }
+
+    function handshake(callback) {
+        const type = document.getElementById("typeNameInput").value;
+        const uid = document.getElementById("uidInput").value;
+        ws.onMessage = (msg) => console.log(msg.data)
+
+        const buf = new Uint8Array(97);
+        buf.set([0x00], 0);
+        new Uint8Array.from(type).slice(0, 32)
+        buf.set(type, 0)
+    }
+
+    function onWsError(ev) {
+        log("Could not connect.", "error");
+        disconnect();
+    }
+
+    function onWsClose() {
+        log("Ws closed", "warn");
+        disconnect();
+    }
+
+    function connect(event) {
+        const url = connectionUrl.value
+        log(`Connecting to ${url}...`);
+
+        if (!validURL(url)) {
+            log("Invalid URL.", "error");
+            disconnect();
+            return;
+        }
+
+        ws = new WebSocket(url);
+        ws.addEventListener("open", onWsOpen);
+        ws.addEventListener("error", onWsError);
+        ws.addEventListener("close", onWsClose);
+
+        toggleConnectionBtn.disabled = true;
+        connectionUrl.disabled = true;
+        document.getElementById("uidInput").disabled = true;
+
+        connectionIndicator.style.backgroundColor = "gold";
+        connectionIndicator.innerText = "Connecting...";
+    }
+
+    function disconnect() {
+        if (ws !== null && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+            ws.close();
+        }
+        ws = null;
+
+        connectionIndicator.style.backgroundColor = "red";
+        connectionIndicator.innerText = "Disconnected";
+
+        connectionUrl.disabled = false;
+        document.getElementById("uidInput").disabled = false;
+
+        toggleConnectionBtn.removeEventListener("click", disconnect)
+        toggleConnectionBtn.addEventListener("click", connect)
+        toggleConnectionBtn.innerText = "Connect";
+        toggleConnectionBtn.disabled = false;
+
+    }
+
+    disconnect();
+</script>
 </body>
 </html>
