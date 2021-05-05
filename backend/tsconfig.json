@@ -8,5 +8,9 @@
   },
   "exclude": [
     "node_modules"
-  ]
+  ],
+  "typedocOptions": {
+    "entryPoints": ["src/index.ts"],
+    "out": "docs"
+  }
 }
