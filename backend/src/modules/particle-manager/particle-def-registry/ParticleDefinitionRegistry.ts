@@ -1,9 +1,9 @@
-import {IModuleTypeDefinition} from "./IModuleTypeDefinition";
+import {IParticleTypeDefinition} from "../interfaces";
 
 export class ParticleDefinitionRegistry {
-    private particle_definitions: IModuleTypeDefinition[] = [];
+    private particle_definitions: IParticleTypeDefinition<any, any>[] = [];
 
-    public registerDefinition(def: IModuleTypeDefinition) {
+    public registerDefinition(def: IParticleTypeDefinition<any, any>) {
         this.particle_definitions.push(def);
     }
 
@@ -11,7 +11,7 @@ export class ParticleDefinitionRegistry {
      * Returns the definition for a name, if one exists.
      * @param name The definition name to search for
      */
-    public getDefByTypename(name: string): IModuleTypeDefinition | undefined {
-        return this.particle_definitions.find(def => def.name === name);
+    public getDefByTypename(name: string): IParticleTypeDefinition<any, any> | undefined {
+        return this.particle_definitions.find(def => def.typeName === name);
     }
 }
