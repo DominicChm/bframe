@@ -1,5 +1,5 @@
 import WebSocket from "ws";
-import {compose_HANDSHAKE_RESPONSE, IClientHandshake} from "../protocol";
+import {compose_HANDSHAKE_RESPONSE, IParticleHandshake} from "../protocol";
 import {handle_handshake} from "bc/protocol";
 import {RuntimeIdProvider} from "./runtime-id-provider/RuntimeIdProvider";
 import {ParticleDefinitionRegistry} from "./particle-def-registry/ParticleDefinitionRegistry";
@@ -22,7 +22,7 @@ export class ParticleManager {
         );
     }
 
-    handleHandshake(particle_info: IClientHandshake, ws: WebSocket): Buffer {
+    handleHandshake(particle_info: IParticleHandshake, ws: WebSocket): Buffer {
         const def = this.pdef_registry.getDefByTypename(particle_info.type);
         if (!def) {
             //TODO: Fail gracefully.
