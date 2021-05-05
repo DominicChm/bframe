@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "run": "ts-node-dev ./src/index.ts"
+    "run": "ts-node-dev ./src/index.ts",
+    "doc": "typedoc ./src"
   },
   "keywords": [],
   "author": "",
@@ -15,7 +16,7 @@
     "@types/winston": "^2.4.4",
     "@types/ws": "^7.4.0",
     "bc": "file:src\\modules",
-    "c-type-util": "^1.1.0",
+    "c-type-util": "^2.0.0",
     "find-process": "^1.4.4",
     "influx": "^5.6.3",
     "ipaddr.js": "^2.0.0",

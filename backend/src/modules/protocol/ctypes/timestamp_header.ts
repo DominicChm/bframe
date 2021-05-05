@@ -5,15 +5,18 @@ import {opcode_ctype} from "./opcode";
 
 
 export interface ITimestampHeader {
+    [key: string]: number
+
     id: number,
-    timestamp: number
+    timestamp: number,
+    op: number,
 }
 
 
 /**
  * The ctype for parsing the protocol's common header, which includes a timestamp and id.
  */
-export let timestamp_header_ctype: ICType = c_struct([
+export let timestamp_header_ctype: ICType<ITimestampHeader> = c_struct([
     {
         name: "op",
         type: opcode_ctype,

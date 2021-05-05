@@ -1,5 +1,5 @@
 import {c_string, c_struct, end, uint16} from "c-type-util";
-import {timestamp_header_ctype} from "../ctypes/timestamp_header";
+import {ITimestampHeader, timestamp_header_ctype} from "../ctypes/timestamp_header";
 
 /**
  * ERROR
@@ -18,34 +18,38 @@ import {timestamp_header_ctype} from "../ctypes/timestamp_header";
  * | MSG | cString(256) | | A user-readable string describing the error. |
  */
 
-export interface IClientError {
+export interface IParticleError {
     id: number;
     timestamp: number;
-    code: number;
+    errorCode: number;
     message: string;
 }
 
-const client_error_ctype = c_struct([
+const client_error_ctype = c_struct<{
+    header: ITimestampHeader,
+    errorCode: number,
+    message: string,
+}>([
     {
         type: timestamp_header_ctype,
         name: "header",
     },
     {
-        name: "code",
+        name: "errorCode",
         type: uint16
     },
     {
-        name: "msg",
+        name: "message",
         type: c_string(256)
     }
 ])
 
-export function parse_ERROR(buf: Buffer, endian: "little" | "big" = "little"): IClientError {
+export function parse_ERROR(buf: Buffer, endian: "little" | "big" = "little"): IParticleError {
     const data = end(client_error_ctype, endian).read(buf);
 
     return {
-        code: data.code,
-        message: data.msg,
+        errorCode: data.errorCode,
+        message: data.message,
         id: data.header.id,
         timestamp: data.header.timestamp
     }

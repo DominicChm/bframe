@@ -18,12 +18,15 @@ import {opcode_ctype} from "../ctypes/opcode";
  *
  */
 
-export interface IClientHandshake {
+export interface IParticleHandshake {
+    [key: string]: any
+
+    op: number,
     type: string,
-    uid: string,
+    uid: string
 }
 
-const handshake_ctype = c_struct([
+const handshake_ctype = c_struct<IParticleHandshake>([
     {
         name: "op",
         type: opcode_ctype
@@ -38,11 +41,7 @@ const handshake_ctype = c_struct([
     }
 ])
 
-export function parse_HANDSHAKE(buf: Buffer, endian: "little" | "big" = "little"): IClientHandshake {
-    const parsed = end(handshake_ctype, endian).read(buf);
+export function parse_HANDSHAKE(buf: Buffer, endian: "little" | "big" = "little"): IParticleHandshake {
+    return end(handshake_ctype, endian).read(buf);
 
-    return {
-        uid: parsed.uid,
-        type: parsed.type,
-    }
 }
