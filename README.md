@@ -55,10 +55,11 @@ There isn't much to say, aside from this is an extraordinarily ambitious project
 # Comically Short Frontend Todo 
 
 ## Proof of Concept
-- [ ] Wireframe Dashboard Component Grid
+- [x] Wireframe Dashboard Component Grid
+- [ ] Convert to CSS grid
 - [ ] Websocket Interface
 - [ ] Standard Live Data Vizualization API
-- [ ] Number Component
+- [x] Number Component
 
 ## Featureset 1
 - [ ] Dashboard Component Menu
