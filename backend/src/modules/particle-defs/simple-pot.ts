@@ -43,8 +43,8 @@ const pot_var: IParticleVariableDefinition<"pot_val", number> = {
     ]
 }
 
-export const def: IParticleTypeDefinition<ISimplePotParticleState, ISimplePotServerState> = {
-    typeName: "simple-pot",
+export const defSimplePot: IParticleTypeDefinition<ISimplePotParticleState, ISimplePotServerState> = {
+    typeName: "simple-potentiometer",
     description: "A potentiometer",
     readable_name: "Simple potentiometer",
     particleVariables: [
