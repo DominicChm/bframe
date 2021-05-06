@@ -1,26 +1,37 @@
 import EventEmitter from "events";
 import WebSocket from "ws";
 import {ParticleDefinitionRegistry} from "../particle-def-registry/ParticleDefinitionRegistry";
-import {EClientOp, opcode_ctype, parse_HANDSHAKE} from "bc/protocol";
+import {EClientOp, IParticleHandshake, opcode_ctype, parse_HANDSHAKE} from "bc/protocol";
+import {IParticleTypeDefinition} from "../interfaces";
 
-export declare interface ParticleConnectionManager<ParticleState_t> {
+export declare interface ParticleConnectionManager<TParticleState, TServerState> {
     on()
 }
 
-export class ParticleConnectionManager<ParticleState_t> extends EventEmitter {
-    private readonly ws: WebSocket;
+export class ParticleConnectionManager<TParticleState, TServerState> extends EventEmitter {
+    private ws: WebSocket;
     private readonly registry: ParticleDefinitionRegistry;
-    uid: string = "";
+    public uid: string = "";
+    public connected: boolean = false;
 
     private readonly op_handler_map: { [Key in EClientOp]: (msg: WebSocket.Data) => void } = {
         [EClientOp.ERROR]: this.handleDUMMY,
-        [EClientOp.HANDSHAKE]: this.handleHandshake,
+        [EClientOp.HANDSHAKE]: this.handleDUMMY,
         [EClientOp.STATE_UPDATE]: this.handleDUMMY,
     }
 
-    constructor(ws: WebSocket, registry: ParticleDefinitionRegistry) {
+    constructor(definition: IParticleTypeDefinition<TParticleState, TServerState>) {
         super();
-        this.registry = registry;
+    }
+
+    /**
+     * Accepts a new websocket connection that has just sent a handshake packet and has had its UID matched
+     * with this manager instance.
+     */
+    handoffWs(ws: WebSocket, particleInfo: IParticleHandshake) {
+        if (this.ws) this.ws.close();
+
+        this.ws = ws;
         ws.on("message", this.distributeMessage.bind(this));
     }
 
@@ -38,12 +49,8 @@ export class ParticleConnectionManager<ParticleState_t> extends EventEmitter {
     handleDUMMY(msg: WebSocket.Data) {
     }
 
-
-    handleHandshake(msg: Buffer) {
-        const particle_info = parse_HANDSHAKE(msg);
-        this.uid = particle_info.uid;
-
-        const def = this.registry.getDefByTypename(particle_info.type);
+    public terminate() {
+        this.ws.close();
     }
 
 }
