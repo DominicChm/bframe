@@ -22,17 +22,17 @@ export interface IParticleHandshake {
     [key: string]: any
 
     op: number,
-    type: string,
+    typeName: string,
     uid: string
 }
 
-const handshake_ctype = c_struct<IParticleHandshake>([
+export const handshake_ctype = c_struct<IParticleHandshake>([
     {
         name: "op",
         type: opcode_ctype
     },
     {
-        name: "type",
+        name: "typeName",
         type: c_string(64)
     },
     {

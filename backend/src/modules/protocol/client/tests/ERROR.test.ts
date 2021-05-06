@@ -7,7 +7,7 @@ it('parse_error parses test packet', () => {
     const code_ctype = uint16
 
     const test_data = {
-        code: 0x69,
+        errorCode: 0x69,
         message: "Test Error Message String 1234567890",
         id: 0x7777,
         timestamp: 0xAAAA
@@ -23,7 +23,7 @@ it('parse_error parses test packet', () => {
     }, buf);
 
     // Write the other components of the error message.
-    code_ctype.writeLE(test_data.code, buf, timestamp_header_ctype.size);
+    code_ctype.writeLE(test_data.errorCode, buf, timestamp_header_ctype.size);
     message_ctype.writeLE(test_data.message, buf, timestamp_header_ctype.size + code_ctype.size);
 
     const parsed = parse_ERROR(buf);

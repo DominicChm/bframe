@@ -6,7 +6,8 @@ it('handshake parses buffer', () => {
     const uid_ctype = c_string(32);
 
     const test_data = {
-        type: "012345678901234567890123456789012345678901234567890123456789012",
+        op: 0x00,
+        typeName: "012345678901234567890123456789012345678901234567890123456789012",
         uid: "0123456789012345678901234567890"
     }
 
@@ -14,7 +15,7 @@ it('handshake parses buffer', () => {
 
     //Manually construct a handshake packet
     buf.writeUInt8(0)
-    type_ctype.writeLE(test_data.type, buf, 1);
+    type_ctype.writeLE(test_data.typeName, buf, 1);
     uid_ctype.writeLE(test_data.uid, buf, 64 + 1);
 
     const parsed = parse_HANDSHAKE(buf);
