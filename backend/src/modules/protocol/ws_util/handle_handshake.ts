@@ -1,5 +1,6 @@
 import WebSocket from "ws";
 import {IParticleHandshake, parse_HANDSHAKE} from "../client/0x00_HANDSHAKE";
+import {compose_ERROR} from "../server/0xFF_ERROR";
 
 /**
  * Waits for an incoming handshake, and responds with whatever message is returned from
@@ -11,9 +12,13 @@ export function handle_handshake(ws: WebSocket, callback: (particle_info: IParti
     //Use arrow fn to avoid rebinding `this`
     const handleMessage = (message: WebSocket.Data) => {
         if (message instanceof Buffer) {
-            const return_msg = callback(parse_HANDSHAKE(message), ws);
-            ws.send(return_msg);
-            ws.removeListener("message", handleMessage);
+            try {
+                const return_msg = callback(parse_HANDSHAKE(message), ws);
+                ws.send(return_msg);
+                ws.removeListener("message", handleMessage);
+            } catch (e) {
+                ws.send(compose_ERROR(0x00, e.message));
+            }
         } else {
             ws.close();
             throw new Error("Received non-buffer or non-handshake opcode message during handshake!");
