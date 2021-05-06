@@ -1,5 +1,5 @@
 import {ISystemParticleDefinition} from "./ISystemParticleDefinition";
 
-export interface ISystemDefinition {
+export interface IParticleSystemDefinition {
     particles: ISystemParticleDefinition[]
 }

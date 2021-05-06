@@ -4,19 +4,19 @@ import {handle_handshake} from "bc/protocol";
 import {RuntimeIdProvider} from "./runtime-id-provider/RuntimeIdProvider";
 import {ParticleDefinitionRegistry} from "./particle-def-registry/ParticleDefinitionRegistry";
 import {logger} from "bc/logging";
-import {IParticleManagerOptions} from "./interfaces/IParticleManagerOptions";
-import {ParticleConnectionManager} from "./particle-connection/ParticleConnectionManager";
+import {IParticleSystemOptions} from "./interfaces";
+import {ParticleManager} from "./particle-manager/";
 import EventEmitter from "events";
 import {IParticleStatePatchEvent} from "./interfaces/PMEvents/IParticleStatePatchEvent";
-import {ISystemDefinition} from "./interfaces/ISystemDefinition";
+import {IParticleSystemDefinition} from "./interfaces";
 
 const log = logger("particle manager")
 
 
-export class ParticleManager extends EventEmitter {
+export class ParticleSystem extends EventEmitter {
     private wss: WebSocket.Server;
     private ridProvider: RuntimeIdProvider = new RuntimeIdProvider();
-    private particleConnections: { [key: string]: ParticleConnectionManager<any, any> } = {};
+    private particleConnections: { [key: string]: ParticleManager<any, any> } = {};
     private particleDefRegistry: ParticleDefinitionRegistry = new ParticleDefinitionRegistry();
 
     //Expose registry methods
@@ -25,7 +25,7 @@ export class ParticleManager extends EventEmitter {
 
     public readonly port;
 
-    constructor(options: IParticleManagerOptions) {
+    constructor(options: IParticleSystemOptions) {
         super();
         log("Starting websocket server");
         this.wss = new WebSocket.Server({port: options.port});
@@ -39,14 +39,14 @@ export class ParticleManager extends EventEmitter {
         );
     }
 
-    loadSystem(sys: ISystemDefinition) {
+    loadSystem(sys: IParticleSystemDefinition) {
         console.log("Loading new system");
         this.particleConnections = {};
         for (const par of sys.particles) {
             const def = this.particleDefRegistry.getDefByTypename(par.typeName);
             if (!def) console.error(`Particle with UID >${par.uid}< was not loaded because typeName >${par.typeName}< wasn't found.`);
 
-            this.particleConnections[par.uid] = new ParticleConnectionManager(def);
+            this.particleConnections[par.uid] = new ParticleManager(def);
         }
     }
 
@@ -60,7 +60,7 @@ export class ParticleManager extends EventEmitter {
             this.particleConnections[particle_info.uid].terminate();
         }
 
-        const pcm = new ParticleConnectionManager(def);
+        const pcm = new ParticleManager(def);
         this.particleConnections[particle_info.uid] = pcm;
 
         const rid = this.ridProvider.allocRid(particle_info.uid);

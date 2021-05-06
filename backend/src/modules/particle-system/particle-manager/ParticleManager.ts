@@ -4,11 +4,11 @@ import {ParticleDefinitionRegistry} from "../particle-def-registry/ParticleDefin
 import {EClientOp, IParticleHandshake, opcode_ctype, parse_HANDSHAKE} from "bc/protocol";
 import {IParticleTypeDefinition} from "../interfaces";
 
-export declare interface ParticleConnectionManager<TParticleState, TServerState> {
+export declare interface ParticleManager<TParticleState, TServerState> {
     on()
 }
 
-export class ParticleConnectionManager<TParticleState, TServerState> extends EventEmitter {
+export class ParticleManager<TParticleState, TServerState> extends EventEmitter {
     private ws: WebSocket;
     private readonly registry: ParticleDefinitionRegistry;
     public uid: string = "";

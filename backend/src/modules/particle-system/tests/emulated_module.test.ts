@@ -1,4 +1,4 @@
-import {ParticleManager} from "../ParticleManager";
+import {ParticleSystem} from "../ParticleSystem";
 import WebSocket from "ws";
 import * as util from "util";
 import {Buffer} from "buffer";
@@ -8,7 +8,7 @@ import {defSimplePot} from "../../particle-defs";
 
 // Creates a ParticleManager and connects a single WS to it.
 async function setup() {
-    const pm = new ParticleManager({port: 0}); //port=0 automatically assigns a port from OS.
+    const pm = new ParticleSystem({port: 0}); //port=0 automatically assigns a port from OS.
     pm.registerDefinition(defSimplePot);
     const ws = new WebSocket(`ws://localhost:${pm.port}`);
 
