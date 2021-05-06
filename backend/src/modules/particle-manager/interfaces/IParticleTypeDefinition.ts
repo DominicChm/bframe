@@ -8,7 +8,7 @@ type TParticleVariables<T extends Object> = IParticleVariableDefinition<Extract<
 type TServerVariables<T extends Object> = IServerVariableDefinition<Extract<keyof T, string>, T[keyof T]>[];
 
 
-export interface IParticleTypeDefinition<TParticleState extends Object, TServerState extends IState> {
+export interface IParticleTypeDefinition<TParticleState extends Object, TServerState extends Object> {
     /**
      * The name of the particle. This should be unique. Max length of 64 chars.
      */
