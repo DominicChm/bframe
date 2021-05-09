@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 import WebSocket from "ws";
 import {ParticleDefinitionRegistry} from "../particle-def-registry/ParticleDefinitionRegistry";
-import {EClientOp, IParticleHandshake, opcode_ctype, parse_HANDSHAKE} from "bc/protocol";
+import {compose_HANDSHAKE_RESPONSE, EClientOp, IParticleHandshake, opcode_ctype, parse_HANDSHAKE} from "bc/protocol";
 import {IParticleTypeDefinition} from "../interfaces";
 
 export declare interface ParticleManager<TParticleState, TServerState> {
@@ -10,9 +10,12 @@ export declare interface ParticleManager<TParticleState, TServerState> {
 
 export class ParticleManager<TParticleState, TServerState> extends EventEmitter {
     private ws: WebSocket;
-    private readonly registry: ParticleDefinitionRegistry;
+    private readonly def: IParticleTypeDefinition<TParticleState, TServerState>;
+
     public uid: string = "";
     public connected: boolean = false;
+    public readonly typeName: string;
+
 
     private readonly op_handler_map: { [Key in EClientOp]: (msg: WebSocket.Data) => void } = {
         [EClientOp.ERROR]: this.handleDUMMY,
@@ -20,19 +23,24 @@ export class ParticleManager<TParticleState, TServerState> extends EventEmitter 
         [EClientOp.STATE_UPDATE]: this.handleDUMMY,
     }
 
-    constructor(definition: IParticleTypeDefinition<TParticleState, TServerState>) {
+    constructor(systemDefinition, typeDefinition: IParticleTypeDefinition<TParticleState, TServerState>) {
         super();
+        this.def = typeDefinition;
     }
 
     /**
      * Accepts a new websocket connection that has just sent a handshake packet and has had its UID matched
      * with this manager instance.
      */
-    handoffWs(ws: WebSocket, particleInfo: IParticleHandshake) {
+    handoffWs(ws: WebSocket, particleInfo: IParticleHandshake, rid: number) {
         if (this.ws) this.ws.close();
 
         this.ws = ws;
+
         ws.on("message", this.distributeMessage.bind(this));
+
+        //Handle the handshake response at the end of initialization.
+        ws.send(compose_HANDSHAKE_RESPONSE(rid));
     }
 
     private distributeMessage(msg: WebSocket.Data) {

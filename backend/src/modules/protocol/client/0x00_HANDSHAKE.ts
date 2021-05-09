@@ -43,5 +43,4 @@ export const handshake_ctype = c_struct<IParticleHandshake>([
 
 export function parse_HANDSHAKE(buf: Buffer, endian: "little" | "big" = "little"): IParticleHandshake {
     return end(handshake_ctype, endian).read(buf);
-
 }

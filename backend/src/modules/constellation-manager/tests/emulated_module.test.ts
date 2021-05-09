@@ -44,6 +44,7 @@ it("responds to handshake", async () => {
 });
 
 it("responds with error on invalid typename", async () => {
+    //Note: This test will probably result in an error in the console. This is expected.
     const {rx, pm, finish, tx, ws} = await setup();
 
     const handshakeBuf = Buffer.alloc(97);
