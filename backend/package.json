@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/lodash": "^4.14.168",
     "@types/node": "^14.14.19",
     "@types/winston": "^2.4.4",
     "@types/ws": "^7.4.0",
@@ -20,6 +21,7 @@
     "find-process": "^1.4.4",
     "influx": "^5.6.3",
     "ipaddr.js": "^2.0.0",
+    "lodash": "^4.17.21",
     "ts-node": "^9.1.1",
     "winston": "^3.3.3",
     "ws": "^7.3.1"
@@ -27,7 +29,7 @@
   "devDependencies": {
     "@types/jest": "^26.0.23",
     "@types/uuid": "^8.3.0",
-    "jsdoc": "^3.6.6",
+    "jsdoc": "^0.0.0",
     "ts-jest": "^26.5.5",
     "ts-node-dev": "^1.1.1",
     "typedoc": "^0.20.36",
