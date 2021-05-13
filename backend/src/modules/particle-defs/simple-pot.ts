@@ -1,5 +1,10 @@
 import {uint8} from "c-type-util";
-import {IParticleTypeDefinition, IParticleVariableDefinition, IState, IVariableDefinition} from "bc/particle-manager";
+import {
+    IParticleTypeDefinition,
+    IParticleVariableDefinition,
+    IState,
+    IVariableDefinition
+} from "bc/constellation-manager";
 
 interface ISimplePotParticleState {
     pot_val: number

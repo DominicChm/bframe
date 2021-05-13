@@ -1,5 +1,5 @@
-export interface ISystemParticleDefinition {
+export interface ISystemParticleDefinition<TServerState> {
     typeName: string,
     uid: string,
-    initialServerState: { [key: string]: any }
+    initialServerState: TServerState
 }

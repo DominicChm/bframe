@@ -10,13 +10,3 @@ const log = logger("ROOT");
 //     await userManagerInit();
 //
 // })()
-
-
-let p = new Proxy({test: 1, lel: "34902"}, mutableProxy(
-    (s, prev, patch) => console.log(s, prev, patch)
-))
-
-p.test = 2;
-p.test = 45;
-p.lel = "hek";
-

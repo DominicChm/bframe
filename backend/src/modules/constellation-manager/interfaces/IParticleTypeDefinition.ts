@@ -25,5 +25,5 @@ export interface IParticleTypeDefinition<TParticleState extends Object, TServerS
     description: string;
 
     particleVariables: TParticleVariables<TParticleState>;
-    serverVariables: TServerVariables<TServerState>[];
+    serverVariables: TServerVariables<TServerState>;
 }

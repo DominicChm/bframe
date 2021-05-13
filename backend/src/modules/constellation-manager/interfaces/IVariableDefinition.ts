@@ -1,12 +1,19 @@
 import {ICType} from "c-type-util";
 import {IDerivedValue} from "./IDerivedValue";
 
+type js_type_strings = "object" | "number" | "string" | "bigint"
+
 export interface IVariableDefinition<VariableSymbol extends string, TBase> {
     /**
      * A C-compatible symbol to represent the variable. It is used to generate headers for
      * firmware. For example, `analog_raw`
      */
     symbol: VariableSymbol;
+
+    /**
+     * The JS typename
+     */
+    js_type: js_type_strings
 
     /**
      * A user-readable name to describe this variable. For example, `Analog Input`

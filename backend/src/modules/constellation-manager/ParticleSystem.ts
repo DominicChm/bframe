@@ -23,7 +23,8 @@ export class ParticleSystem extends EventEmitter {
     private wss: WebSocket.Server;
     private ridProvider: RuntimeIdProvider = new RuntimeIdProvider();
     private particles: { [key: string]: ParticleManager<any, any> } = {};
-    private unassignedParticles: ParticleManager<any, any>[] = [];
+    private unassignedParticles: { ws: WebSocket, pInfo: IParticleHandshake }[] = [];
+    private systemDefinition: IParticleSystemDefinition;
 
     private particleDefRegistry: ParticleDefinitionRegistry = new ParticleDefinitionRegistry();
 
@@ -53,29 +54,37 @@ export class ParticleSystem extends EventEmitter {
      */
     public loadSystem(sys: IParticleSystemDefinition) {
         console.log("Loading new system");
-        this.particles = {};
-        const registered_uids = [];
+        this.systemDefinition = sys;
 
-        //Instance new particles
+        const newParticles = {};
+
+        //Instance new particles.
         for (const par of sys.particles) {
-            const def = this.particleDefRegistry.getDefByTypename(par.typeName);
-            if (!def) {
+            const typeDef = this.particleDefRegistry.getDefByTypename(par.typeName);
+
+            if (!typeDef) {
                 log(`Particle with UID >${par.uid}< was not loaded because typeName >${par.typeName}< wasn't found.`, "error");
                 continue;
             }
-            if (registered_uids.includes(par.uid)) {
-                log(`Particle with UID >${par.uid}< was not loaded because another module with same UID was already loaded.`, "error");
-                continue;
-            }
-            //If a manager doesn't exist for UID, instance a new one.
-            if (!this.particles[par.uid] && this.particles[par.uid].typeName) {
-                this.particles[par.uid] = new ParticleManager(def);
-            }
-            registered_uids.push(par);
 
+            //If PM already exists for UID, reassign existing manager to new system.
+            if (this.particles[par.uid]) {
+                newParticles[par.uid] = this.particles[par.uid].loadSystemDef(par);
+
+                //Delete reassigned PM from current particles, which are orphaned after load.
+                delete this.particles[par.uid];
+            } else {
+                newParticles[par.uid] = new ParticleManager(typeDef).loadSystemDef(par);
+            }
         }
 
-        this.particles
+        //Move info of any newly orphaned particles to unassigned arr.
+        for (let particlesKey in this.particles) {
+            const unassignedInfo = this.particles[particlesKey].disconnectWs();
+            this.unassignedParticles.push(unassignedInfo);
+        }
+
+        this.particles = newParticles; //Assign newly loaded system.
     }
 
     /**
@@ -85,22 +94,19 @@ export class ParticleSystem extends EventEmitter {
      */
     private handleHandshake(ws: WebSocket, msg: Data): void {
         if (!(msg instanceof Buffer)) throw new Error("msg is not an instance of Buffer!");
-
         const pInfo = parse_HANDSHAKE(msg);
         const def = this.particleDefRegistry.getDefByTypename(pInfo.typeName);
 
         if (!def) throw new Error(`Handshake error: No definition exists for >${pInfo.typeName}<`);
 
-        const rid = this.ridProvider.allocRid(pInfo.uid);
-
         if (this.particles[pInfo.uid]) {
-            this.particles[pInfo.uid].handoffWs(ws, pInfo, rid);
+            const rid = this.ridProvider.allocRid(pInfo.uid);
+
+            this.particles[pInfo.uid].connectWs(ws, pInfo, rid);
 
         } else { //This UID is not in the system, add the particle to a list of unassigned particles
-            const pcm = new ParticleManager(def);
-            this.unassignedParticles.push(pcm);
-
-            pcm.handoffWs(ws, pInfo, rid);
+            this.unassignedParticles.push({ws, pInfo});
+            log(`Unassigned particle connected! (uid=${pInfo.uid})`);
         }
     }
 
