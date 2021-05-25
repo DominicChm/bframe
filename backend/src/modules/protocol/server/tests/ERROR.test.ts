@@ -1,5 +1,5 @@
 import {c_string, uint16} from "c-type-util";
-import {compose_ERROR} from "../0xFF_ERROR";
+import {serializeError} from "../0xFF_ERROR";
 import {opcode_ctype} from "../../ctypes/opcode";
 
 it('compose_error composes test packet', () => {
@@ -19,6 +19,6 @@ it('compose_error composes test packet', () => {
     message_ctype.writeLE(test_data.message, buf, code_ctype.size + opcode_ctype.size);
 
     expect(
-        compose_ERROR(test_data.code, test_data.message)
+        serializeError(test_data.code, test_data.message)
     ).toEqual(buf);
 });

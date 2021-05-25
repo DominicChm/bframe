@@ -1,14 +1,7 @@
-import {IServerVariableDefinition} from "./IServerVariableDefinition";
-import {IParticleVariableDefinition} from "./IParticleVariableDefinition";
-import {IState} from "./IState";
 import {IVariableDefinition} from "./IVariableDefinition";
+import {CType} from "c-type-util";
 
-//Maps input interface object type to array of variable definition types.
-type TParticleVariables<T extends Object> = IParticleVariableDefinition<Extract<keyof T, string>, T[keyof T]>[];
-type TServerVariables<T extends Object> = IServerVariableDefinition<Extract<keyof T, string>, T[keyof T]>[];
-
-
-export interface IParticleTypeDefinition<TParticleState extends Object, TServerState extends Object> {
+export interface IParticleTypeDefinition<TParticleState> {
     /**
      * The name of the particle. This should be unique. Max length of 64 chars.
      */
@@ -24,6 +17,16 @@ export interface IParticleTypeDefinition<TParticleState extends Object, TServerS
      */
     description: string;
 
-    particleVariables: TParticleVariables<TParticleState>;
-    serverVariables: TServerVariables<TServerState>;
+    /**
+     * The C type used to encode variable IDs. Usually uint8, but can go up to uint32 if needed to support more
+     * variable fields.
+     */
+    varIdCType: CType<number>
+
+
+    endian: "little" | "big"
+
+    defaultInitialState: TParticleState;
+
+    variables: { [Property in keyof TParticleState]: IVariableDefinition<TParticleState[Property]> }
 }

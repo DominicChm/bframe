@@ -1,5 +1,5 @@
-import {c_string, c_struct, end, uint16} from "c-type-util";
-import {ITimestampHeader, timestamp_header_ctype} from "../ctypes/timestamp_header";
+import {cString, cStruct, uint16} from "c-type-util";
+import {TimestampHeader, TimestampHeaderCT} from "../ctypes/TimestampHeaderCT";
 
 /**
  * ERROR
@@ -25,32 +25,12 @@ export interface IParticleError {
     message: string;
 }
 
-const client_error_ctype = c_struct<{
-    header: ITimestampHeader,
+export const ParticleErrorCT = cStruct<{
+    header: TimestampHeader
     errorCode: number,
     message: string,
-}>([
-    {
-        type: timestamp_header_ctype,
-        name: "header",
-    },
-    {
-        name: "errorCode",
-        type: uint16
-    },
-    {
-        name: "message",
-        type: c_string(256)
-    }
-])
-
-export function parse_ERROR(buf: Buffer, endian: "little" | "big" = "little"): IParticleError {
-    const data = end(client_error_ctype, endian).read(buf);
-
-    return {
-        errorCode: data.errorCode,
-        message: data.message,
-        id: data.header.id,
-        timestamp: data.header.timestamp
-    }
-}
+}>({
+    header: TimestampHeaderCT,
+    errorCode: uint16,
+    message: cString(256),
+})

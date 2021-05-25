@@ -1,2 +1,2 @@
-export * from "./ParticleManager"
+export * from "./particle-manager"
 export * from "./interfaces"

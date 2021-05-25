@@ -1,5 +1,7 @@
-import {c_struct, end, uint16} from "c-type-util";
-import {opcode_ctype} from "../ctypes/opcode";
+import {cStruct, end} from "c-type-util";
+import {RidCT} from "../ctypes/RidCT";
+import {OpCT} from "../ctypes/OpCT";
+import {EServerOp} from "../server_opcodes";
 
 /**
  * HANDSHAKE
@@ -18,28 +20,19 @@ import {opcode_ctype} from "../ctypes/opcode";
  *
  */
 
-export interface IHandshake {
-    type: string,
-    uid: string,
+export interface HandshakeResponse {
+    op: number,
+    rid: number,
 }
 
-const handshake_ctype = c_struct([
-    {
-        name: "op",
-        type: opcode_ctype
-    },
-    {
-        name: "id",
-        type: uint16
-    }
-])
+export const HandshakeResponseCT = cStruct<HandshakeResponse>({
+    op: OpCT,
+    rid: RidCT
+})
 
-export function compose_HANDSHAKE_RESPONSE(id, endian: "little" | "big" = "little"): Buffer {
-    const buf = Buffer.alloc(handshake_ctype.size);
-    end(handshake_ctype, endian).write({
-        op: 0x000,
-        id
-    }, buf);
-
-    return buf
+export function serializeHandshakeResponse(rid: number, endian: "little" | "big" = "little"): Buffer {
+    return end(HandshakeResponseCT, endian).alloc({
+        op: EServerOp.HANDSHAKE_RESPONSE,
+        rid: rid
+    });
 }

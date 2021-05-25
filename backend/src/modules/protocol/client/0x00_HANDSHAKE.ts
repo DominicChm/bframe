@@ -1,5 +1,5 @@
-import {c_string, c_struct, end} from "c-type-util";
-import {opcode_ctype} from "../ctypes/opcode";
+import {cString, cStruct} from "c-type-util";
+import {OpCT} from "../ctypes/OpCT";
 
 /**
  * HANDSHAKE
@@ -18,29 +18,14 @@ import {opcode_ctype} from "../ctypes/opcode";
  *
  */
 
-export interface IParticleHandshake {
-    [key: string]: any
-
+export interface ParticleHandshake {
     op: number,
     typeName: string,
     uid: string
 }
 
-export const handshake_ctype = c_struct<IParticleHandshake>([
-    {
-        name: "op",
-        type: opcode_ctype
-    },
-    {
-        name: "typeName",
-        type: c_string(64)
-    },
-    {
-        name: "uid",
-        type: c_string(32)
-    }
-])
-
-export function parse_HANDSHAKE(buf: Buffer, endian: "little" | "big" = "little"): IParticleHandshake {
-    return end(handshake_ctype, endian).read(buf);
-}
+export const ParticleHandshakeCT = cStruct<ParticleHandshake>({
+    op: OpCT,
+    typeName: cString(64),
+    uid: cString(32),
+})

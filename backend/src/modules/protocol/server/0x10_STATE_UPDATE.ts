@@ -9,16 +9,13 @@
  * | Field | Type | Value | Description |
  * | ----- | ---- | ----- | ----------- |
  * | OP | uint8 | 0x10 | The operation code. |
- * | CODE | uint16 | | A user-defined error code. |
- * | MSG | cString(256) | | A user-readable string describing the error. |
+ * | DATA | any | | A generated data patch. |
  */
-import {opcode_ctype} from "../ctypes/opcode";
+import {OpCT} from "../ctypes/OpCT";
+import {end} from "c-type-util";
+import {EServerOp} from "../server_opcodes";
 
-export function compose_STATE_UPDATE(data: Buffer, endian: "little" | "big" = "little"): Buffer {
-    const buf = Buffer.alloc(data.length + 1);
-
-    opcode_ctype.writeLE(0x10, buf);
-    data.copy(buf, 1);
-
-    return buf
+export function composeStateUpdate(data: Buffer, endian: "little" | "big" = "little") {
+    const op = end(OpCT, endian).alloc(EServerOp.HANDSHAKE_RESPONSE);
+    return Buffer.concat([op, data])
 }

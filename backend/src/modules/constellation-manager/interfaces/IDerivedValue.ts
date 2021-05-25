@@ -29,33 +29,11 @@ export interface IDerivedValue<TBase, TDerived> {
      * Should convert the base type of the parent value to whatever this derived value represents. For example, if
      * the base value is the raw analog value of a potentiometer (0-1023), this function might map it to degrees.
      */
-    convert_base_to_derived: (base_val: TBase, variable_definition: IVariableDefinition<string, TBase>) => TDerived;
+    convert_base_to_derived: (base_val: TBase, variable_definition: IVariableDefinition<TBase>) => TDerived;
 
     /**
      * Should do the opposite of `convert_base_to_derived`. That is, convert to an expected raw analog value from
      * an input in degrees.
      */
-    convert_derived_to_base: (derived: TDerived, variable_definition: IVariableDefinition<string, TBase>) => TBase;
+    convert_derived_to_base: (derived: TDerived, variable_definition: IVariableDefinition<TBase>) => TBase;
 }
-
-// .on("data", () => {});
-// let test = {
-//     timestamp: 12343, // in ms
-//     moduleType: "random_module",
-//     moduleDef: IModuleTypeDefinition,
-//
-//     previousState: {
-//         num: 1,
-//         val: 69,
-//     },
-//     patch: {
-//         num: 2,
-//     },
-//     nextState: {
-//         num: 2,
-//         val: 69,
-//     }
-// }
-//
-//
-// .onModule("21:33:21:44:12:12", "data", () => {})

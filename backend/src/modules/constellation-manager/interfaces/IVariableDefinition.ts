@@ -1,19 +1,19 @@
-import {ICType} from "c-type-util";
+import {CType} from "c-type-util";
 import {IDerivedValue} from "./IDerivedValue";
 
 type js_type_strings = "object" | "number" | "string" | "bigint"
 
-export interface IVariableDefinition<VariableSymbol extends string, TBase> {
-    /**
-     * A C-compatible symbol to represent the variable. It is used to generate headers for
-     * firmware. For example, `analog_raw`
-     */
-    symbol: VariableSymbol;
+export interface IVariableDefinition<TBase> {
 
     /**
      * The JS typename
      */
-    js_type: js_type_strings
+    js_type: js_type_strings;
+
+    /**
+     * Defines who "owns" this variable. Only the owner can mutate its value.
+     */
+    owner: "particle" | "server";
 
     /**
      * A user-readable name to describe this variable. For example, `Analog Input`
@@ -28,7 +28,7 @@ export interface IVariableDefinition<VariableSymbol extends string, TBase> {
     /**
      * The C-Type that is represented by this variable.
      */
-    c_type: ICType<TBase>;
+    cType: CType<TBase>;
 
     /**
      * An array of {@link IDerivedValue}[IDerivedValues], used to specify transformations to and from
@@ -40,14 +40,19 @@ export interface IVariableDefinition<VariableSymbol extends string, TBase> {
      * A user-defined function that returns true if the base value is currently atypical.
      * TODO: PASS IN ENTIRE STATE TO ALLOW USE OF OTHER VARIABLES
      */
-    outside_typical?: (raw_val: TBase, variable_definition: IVariableDefinition<VariableSymbol, TBase>) => boolean;
+    outside_typical?: (raw_val: TBase, variable_definition: IVariableDefinition<TBase>) => boolean;
 
     /**
      * A function that returns true if the base value is critically incorrect
      * (Like engine speed being above 12,000 RPM).
      * TODO: PASS IN ENTIRE STATE TO ALLOW USE OF OTHER VARIABLES
      */
-    outside_abs?: (raw_val: TBase, variable_definition: IVariableDefinition<VariableSymbol, TBase>) => boolean;
+    outside_abs?: (raw_val: TBase, variable_definition: IVariableDefinition<TBase>) => boolean;
+
+    /**
+     * Allows limiting of data
+     */
+    limit?: (raw_val: TBase, variable_definition: IVariableDefinition<TBase>) => TBase;
 
     //Fields that can automatically take care of limiting and recognizing typical vals for number base types.
     typical_max?: TBase extends number ? number : never;

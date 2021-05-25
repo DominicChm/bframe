@@ -1,4 +1,4 @@
-import {compose_HANDSHAKE_RESPONSE} from "../0x00_HANDSHAKE_RESPONSE";
+import {serializeHandshakeResponse} from "../0x00_HANDSHAKE_RESPONSE";
 
 it("handshake_response composes correctly", () => {
     const id = 0x0005;
@@ -7,6 +7,6 @@ it("handshake_response composes correctly", () => {
         op,
         0x05, 0x00
     ];
-    let buf = compose_HANDSHAKE_RESPONSE(id);
+    let buf = serializeHandshakeResponse(id);
     expect(buf).toEqual(Buffer.from(expected))
 });

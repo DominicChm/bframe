@@ -1,5 +1,4 @@
-import {c_string, c_struct, end, uint16, uint8} from "c-type-util";
-import {timestamp_header_ctype} from "../ctypes/timestamp_header";
+import {cString, cStruct, end, uint16, uint8} from "c-type-util";
 
 /**
  * ERROR
@@ -16,28 +15,16 @@ import {timestamp_header_ctype} from "../ctypes/timestamp_header";
  * | MSG | cString(256) | | A user-readable string describing the error. |
  */
 
-const client_error_ctype = c_struct([
-    {
-        type: uint8,
-        name: "op",
-    },
-    {
-        name: "code",
-        type: uint16
-    },
-    {
-        name: "msg",
-        type: c_string(256)
-    }
-])
+export const ServerErrorCT = cStruct({
+    op: uint8,
+    code: uint16,
+    msg: cString(256),
+})
 
-export function compose_ERROR(code: number, msg: string, endian: "little" | "big" = "little"): Buffer {
-    const buf = Buffer.alloc(client_error_ctype.size);
-    end(client_error_ctype, endian).write({
+export function serializeError(code: number, msg: string, endian: "little" | "big" = "little"): Buffer {
+    return end(ServerErrorCT, endian).alloc({
         op: 0xFF,
         code,
         msg
-    }, buf);
-
-    return buf;
+    });
 }

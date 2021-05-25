@@ -1,7 +1,5 @@
-import {c_string, c_struct, end} from "c-type-util";
-import {opcode_ctype} from "../ctypes/opcode";
-import {IParticleTypeDefinition} from "../../particle-manager/interfaces/IParticleTypeDefinition";
-import {timestamp_header_ctype} from "../ctypes/timestamp_header";
+import {end} from "c-type-util";
+import {TimestampHeaderCT} from "../ctypes/TimestampHeaderCT";
 
 /**
  * STATE_UPDATE
@@ -22,17 +20,17 @@ import {timestamp_header_ctype} from "../ctypes/timestamp_header";
  */
 
 export interface IClientStateUpdate {
-    id: number,
+    rid: number,
     timestamp: number,
     data: Buffer
 }
 
-export function parse_STATE_UPDATE(buf: Buffer, endian: "little" | "big" = "little"): IClientStateUpdate {
-    const header_data = end(timestamp_header_ctype, endian).read(buf);
+export function parseStateUpdate(buf: Buffer, endian: "little" | "big" = "little"): IClientStateUpdate {
+    const header_data = end(TimestampHeaderCT, endian).read(buf);
 
     return {
-        id: header_data.id,
+        rid: header_data.rid,
         timestamp: header_data.timestamp,
-        data: buf.slice(timestamp_header_ctype.size)
+        data: buf.slice(TimestampHeaderCT.size)
     }
 }
