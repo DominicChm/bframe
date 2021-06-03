@@ -1,9 +1,11 @@
-import {c_string, uint16} from "c-type-util";
-import {parse_ERROR} from "../0xFF_ERROR";
-import {timestamp_header_ctype} from "../../ctypes/timestamp_header";
+import {cString, uint16} from "c-type-util";
+import {ParticleErrorCT} from "../0xFF_ERROR";
+import {ParticleHandshakeCT} from "../0x00_HANDSHAKE";
+import {EClientOp} from "../../client_opcodes";
+import {TimestampHeaderCT} from "../../ctypes/TimestampHeaderCT";
 
 it('parse_error parses test packet', () => {
-    const message_ctype = c_string(256);
+    const message_ctype = cString(256);
     const code_ctype = uint16
 
     const test_data = {
@@ -13,20 +15,23 @@ it('parse_error parses test packet', () => {
         timestamp: 0xAAAA
     }
 
-    const buf = Buffer.alloc(256 + 2 + 2 + 1 + 2);
+    //Manually construct an error packet
+    const buf = Buffer.concat([
+        TimestampHeaderCT.allocLE({
+            rid: test_data.id,
+            timestamp: test_data.timestamp,
+            op: 0xFF
+        }),
+        code_ctype.allocLE(test_data.errorCode),
+        message_ctype.allocLE(test_data.message),
+    ]);
 
-    //Manually construct a handshake packet
-    timestamp_header_ctype.writeLE({
-        id: test_data.id,
-        timestamp: test_data.timestamp,
-        op: 0xFF
-    }, buf);
 
     // Write the other components of the error message.
-    code_ctype.writeLE(test_data.errorCode, buf, timestamp_header_ctype.size);
-    message_ctype.writeLE(test_data.message, buf, timestamp_header_ctype.size + code_ctype.size);
 
-    const parsed = parse_ERROR(buf);
 
-    expect(parsed).toEqual(test_data);
+    const parsed = ParticleErrorCT.readLE(buf);
+
+    expect(parsed.message).toEqual(test_data.message);
+    expect(parsed.errorCode).toEqual(test_data.errorCode);
 });
