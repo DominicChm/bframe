@@ -2,7 +2,7 @@ import {IParticleTypeDefinition, ISystemParticleDefinition} from "../interfaces"
 import {Particle} from "./Particle";
 import {RIDRegistry} from "../runtime-id-registry/RIDRegistry";
 
-export class ParticleFactory {
+export class ParticleInstancer {
     tDefs: IParticleTypeDefinition<any>[];
     ridReg: RIDRegistry;
 
