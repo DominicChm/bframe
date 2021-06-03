@@ -1,6 +1,7 @@
 import {IParticleTypeDefinition, IVariableDefinition} from "../interfaces";
 import {end, CType, CTypeEndian, uint8} from "c-type-util";
-import {composeStateUpdate, parseStateUpdate} from "../../protocol";
+import {composeStateUpdate, OpCT, parseStateUpdate} from "../../protocol";
+import {VarIdCT} from "../../protocol/ctypes/VarIdCT";
 
 type TVar<TState> = IParticleTypeDefinition<TState>["variables"];
 
@@ -42,8 +43,8 @@ export class ParticleDef<TState> {
         this.endian = def.endian;
 
         //Setup parsers
-        this._varIDParser = end(def.varIdCType, def.endian);
-        this._opParser = end(uint8, def.endian); //opcode always uint8
+        this._varIDParser = end(VarIdCT, def.endian);
+        this._opParser = end(OpCT, def.endian); //opcode always uint8
 
         //An array where each index contains the CType and symbol of the variable with that ID.
         this._parserInfo = Object
@@ -107,12 +108,11 @@ export class ParticleDef<TState> {
             // Only serialize server state.
             if (def.owner !== "server") continue;
 
-            const buf = Buffer.alloc(this._varIDParser.size + cType.size);
+            //Push the variable ID
+            parts.push(this._varIDParser.alloc(varId))
 
-            this._varIDParser.write(varId, buf); //Write var ID
-            cType.write(patch[k], buf, this._varIDParser.size); //Write actual data.
-
-            parts.push(buf)
+            //Push the serialized data
+            parts.push(cType.alloc(patch[k]));
         }
 
         return Buffer.concat(parts);
