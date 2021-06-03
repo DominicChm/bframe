@@ -68,17 +68,36 @@ export class Particle<S extends Object> extends EventEmitter implements RouterEn
         }
     }
 
+    /**
+     * Patches a received binary state updated into this object's state, based on the type definition.
+     */
     private _receiveStateUpdate(data: Buffer) {
-        const patch = this._def.parseStateUpdate(data)
-        this.patch(p => {
+        const {patch} = this._def.parseStateUpdate(data)
+
+        this._patch(p => {
             _.merge(p, patch);
-        });
+        }, false);
     }
 
+    /**
+     * Allows the passed function to directly modify this particle's SERVER state.
+     */
     public patch(fn: PatchFn<S>) {
-        const proxyHandler = new MutableProxy(this._blockedStateKeys);
+        this._patch(fn);
+    }
+
+    /**
+     * Allows the passed function to directly modify this particle's state.
+     */
+    private _patch(fn: PatchFn<S>, restrictKeys = true) {
+        // Setup patch by copying current state object and creating new proxy to wrap it
+        const proxyHandler = new MutableProxy(restrictKeys ? this._blockedStateKeys : undefined);
         const patchable = new Proxy<S>(_.cloneDeep(this._dState), proxyHandler);
+
+        // Pass the object proxy to the passed patcher function
         fn(patchable);
+
+        // Emit new state
         this.emit("patch", proxyHandler.patch, this);
         this.emit("state", proxyHandler.current, this);
         this.emit("change", proxyHandler.current, proxyHandler.patch, proxyHandler.previous, this);
