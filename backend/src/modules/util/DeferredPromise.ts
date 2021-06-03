@@ -36,7 +36,17 @@ export class DeferredPromise<T> {
 
     static Promisify<T>(fn, ...arg): DeferredPromise<T> {
         const p = new DeferredPromise<T>();
-        fn(...arg, p.resolve);
+
+        function callback(...arg) {
+            if (arg.length > 1)
+                p.resolve(arg as unknown as T);
+            else if (arg.length === 1)
+                p.resolve(arg[0]);
+            else
+                p.resolve(undefined);
+        }
+
+        fn(...arg, callback);
         return p;
     }
 }
