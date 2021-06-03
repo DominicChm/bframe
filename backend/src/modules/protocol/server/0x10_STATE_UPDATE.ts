@@ -16,6 +16,6 @@ import {end} from "c-type-util";
 import {EServerOp} from "../server_opcodes";
 
 export function composeStateUpdate(data: Buffer, endian: "little" | "big" = "little") {
-    const op = end(OpCT, endian).alloc(EServerOp.HANDSHAKE_RESPONSE);
+    const op = end(OpCT, endian).alloc(EServerOp.STATE_UPDATE);
     return Buffer.concat([op, data])
 }

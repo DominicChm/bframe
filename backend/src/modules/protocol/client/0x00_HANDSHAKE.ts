@@ -1,4 +1,4 @@
-import {cString, cStruct} from "c-type-util";
+import {cString, cStruct, end} from "c-type-util";
 import {OpCT} from "../ctypes/OpCT";
 
 /**
@@ -29,3 +29,7 @@ export const ParticleHandshakeCT = cStruct<ParticleHandshake>({
     typeName: cString(64),
     uid: cString(32),
 })
+
+export function parseHandshake(data: Buffer, offset = 0, endian: "little" | "big" = "little"): ParticleHandshake {
+    return end(ParticleHandshakeCT, endian).read(data)
+}
