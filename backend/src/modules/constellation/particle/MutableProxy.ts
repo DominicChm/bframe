@@ -25,13 +25,17 @@ export class MutableProxy<T extends Object> implements ProxyHandler<T> {
     set(target: T, key, value) {
         this._init(target);
 
+        //Do not set blocked fields
+        if(this._keyDenyList.has(key))
+            throw new Error(`key deny list has >${key}<`);
+
         //Only set existing fields.
-        if (target[key] !== undefined && !this._keyDenyList.has(key)) {
-            target[key] = value;
-            this.patch[key] = value;
-            return true;
-        }
-        return false;
+        if(target[key] === undefined)
+            throw new Error(`>${key}< is undefined on target object`);
+
+        target[key] = value;
+        this.patch[key] = value;
+        return true;
     }
 
     defineProperty(target: T, key, desc) {
