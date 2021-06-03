@@ -33,4 +33,10 @@ export class DeferredPromise<T> {
         this.catch = this._promise.catch.bind(this._promise);
         this.finally = this._promise.finally.bind(this._promise);
     }
+
+    static Promisify<T>(fn, ...arg): DeferredPromise<T> {
+        const p = new DeferredPromise<T>();
+        fn(...arg, p.resolve);
+        return p;
+    }
 }
