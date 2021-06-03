@@ -1,28 +1,16 @@
 import EventEmitter from "events";
 import {IConstellationDefinition, IParticleTypeDefinition} from "./interfaces";
 import {Particle} from "./particle/Particle";
-import {ParticleFactory} from "./particle/ParticleFactory";
+import {ParticleInstancer} from "./particle/ParticleInstancer";
 import {cStruct, end, uint16, uint8} from "c-type-util";
 import {RIDRegistry} from "./runtime-id-registry/RIDRegistry";
 import {Connector, ResponseFn, Router} from "./router/Router";
 import {WebsocketConnector} from "./router/connector/WebsocketConnector";
-import {IdHeaderCT} from "../protocol/ctypes/IdHeaderCT";
+import {IdHeaderCT} from "../protocol";
 import {EClientOp, ParticleHandshakeCT, serializeError, serializeHandshakeResponse} from "../protocol";
 import {logger} from "bc/logging";
-import {type} from "os";
-import {DebugEndpoint} from "./router/endpoint/DebugEndpoint";
 
-const headerCType = end(cStruct({
-    op: uint8,
-    rid: uint16,
-}), "little");
-
-
-interface ParticleConnector extends EventEmitter {
-    send: (buf: Buffer) => Promise<void>;
-
-    on(event: "data", listener: (data: Buffer) => void)
-}
+const log = logger("Constellation");
 
 export interface ConstellationConfig {
     portUdpParticle: number,
@@ -30,11 +18,6 @@ export interface ConstellationConfig {
     portWsServer: number,
 }
 
-export declare interface Constellation {
-    on(event: "data", listener: (data) => void);
-}
-
-const log = logger("Constellation");
 
 const opCodeType = uint8;
 const ridType = uint16;
@@ -45,7 +28,7 @@ export class Constellation extends EventEmitter {
     private _tDefs: IParticleTypeDefinition<any>[] = [];
     private _router: Router;
     private _wsConnector: WebsocketConnector;
-    private _particleFactory: ParticleFactory;
+    private _particleFactory: ParticleInstancer;
     private _ridRegistry: RIDRegistry;
     private readonly _manualConnectors: Connector[]; //Used to plug connectors directly into Constellation for testing.
     private _config: ConstellationConfig;
@@ -79,9 +62,13 @@ export class Constellation extends EventEmitter {
 
         //Setup particles
         this._ridRegistry = new RIDRegistry();
-        this._particleFactory = new ParticleFactory(this._tDefs, this._ridRegistry);
+        this._particleFactory = new ParticleInstancer(this._tDefs, this._ridRegistry);
 
         this._particles = def.particles.map(pDef => this._particleFactory.construct(pDef));
+        for (const particle of this._particles) {
+            this._router.addEndpoint(particle.uid, particle);
+
+        }
     }
 
     private _route(data: Buffer): string | undefined {
@@ -89,7 +76,8 @@ export class Constellation extends EventEmitter {
         const op = opCodeType.readLE(data);
         if (routableOps.has(op)) {
             const {rid} = IdHeaderCT.readLE(data);
-            return this._ridRegistry.resolveUidFromRid(rid);
+            const uid = this._ridRegistry.resolveUidFromRid(rid);
+            return uid
         }
 
         //If not routable, return undefined - msg will be handled later.
@@ -102,7 +90,11 @@ export class Constellation extends EventEmitter {
         switch (op) {
             case EClientOp.HANDSHAKE:
                 await this._performHandshake(data, respond);
+                log("Handshake received");
                 break;
+            default:
+                log("Unhandled, unroutable message received!", "warn");
+                console.log(data);
         }
     }
 
@@ -142,6 +134,6 @@ export class Constellation extends EventEmitter {
 
     particle(uid: string): Particle<any> | undefined {
         //FIXME: REPLACE WITH AN OBJECT LOOKUP.
-        return this._particles.find(p => p.uid === uid);
+        return this._particles.find((p) => p.uid === uid);
     }
 }
