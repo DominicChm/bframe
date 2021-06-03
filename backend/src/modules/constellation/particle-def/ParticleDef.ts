@@ -122,6 +122,11 @@ export class ParticleDef<TState> {
         return this._opParser.read(data, offset);
     }
 
+    /**
+     * Deserializes a state update packet into an object, according to this object's loaded type definition
+     * @param buf
+     * @param offset
+     */
     parseStateUpdate(buf: Buffer, offset: number = 0) {
         const {data, rid, timestamp} = parseStateUpdate(buf, this.endian);
         const patch = this.parseDataPatch(data);
