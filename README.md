@@ -14,20 +14,20 @@ There isn't much to say, aside from this is an extraordinarily ambitious project
 
 - [ ] Module Manager
     - [ ] Variable-length variable indexing (support 16-bit var index)
-    - [ ] Event Firing
-    - [ ] Protocol Parsers
-        - [ ] Error (compose/parse)
-        - [ ] Handshake (compose/parse)
-        - [ ] State Updates (compose/parse)
-        - [ ] State Updates (compose/parse)
+    - [x] Event Firing
+    - [x] Protocol Parsers
+        - [x] Error (compose/parse)
+        - [x] Handshake (compose/parse)
+        - [x] State Updates (compose/parse)
+        - [x] State Updates (compose/parse)
     - [ ] Endpoints
-        - [ ] Websocket Endpoint
+        - [x] Websocket Endpoint
         - [ ] UDP Endpoint
     - [ ] Module class
-        - [ ] Event Firing
-        - [ ] Module construction
+        - [x] Event Firing
+        - [x] Module construction
         - [ ] Module testing
-        - [ ] Generalized Message Parsing
+        - [x] Generalized Message Parsing
         - [x] Module definition interfaces
 
 - [ ] User Manager
