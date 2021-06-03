@@ -2,14 +2,17 @@ import {IParticleTypeDefinition, ISystemParticleDefinition, IVariableDefinition}
 import {ResponseFn, RouterEndpoint} from "../router/Router";
 import _ from "lodash";
 import {ParticleDef} from "../particle-def/ParticleDef";
-import {OpCT} from "../../protocol/ctypes/OpCT";
 import {EClientOp} from "../../protocol";
 import {MutableProxy} from "./mutableProxy";
 import EventEmitter from "events";
+import {ParticleEventEmitter} from "./ParticleEventEmitter";
+import {logger} from "bc/logging";
+
+const log = logger("Particle");
 
 export type PatchFn<S> = (state: S) => void;
 
-export class Particle<S extends Object> extends EventEmitter implements RouterEndpoint {
+export class Particle<S extends Object> extends EventEmitter implements RouterEndpoint, ParticleEventEmitter<S> {
     public uid: string;
     public rid: number;
     public endian: "little" | "big";
@@ -31,7 +34,7 @@ export class Particle<S extends Object> extends EventEmitter implements RouterEn
         this._def = new ParticleDef<S>(tDef);
 
         for (const [k, v] of Object.entries<IVariableDefinition<any>>(tDef.variables)) {
-            if (v.owner === "particle")
+            if (v.owner === "particle") //Disallow setting keys that belong to particles.
                 this._blockedStateKeys.add(k);
         }
 
@@ -68,8 +71,8 @@ export class Particle<S extends Object> extends EventEmitter implements RouterEn
     private _receiveStateUpdate(data: Buffer) {
         const patch = this._def.parseStateUpdate(data)
         this.patch(p => {
-            Object.assign(p, patch);
-        })
+            _.merge(p, patch);
+        });
     }
 
     public patch(fn: PatchFn<S>) {
@@ -80,17 +83,4 @@ export class Particle<S extends Object> extends EventEmitter implements RouterEn
         this.emit("state", proxyHandler.current, this);
         this.emit("change", proxyHandler.current, proxyHandler.patch, proxyHandler.previous, this);
     }
-
-    //State-related events
-    on(event: "patch", listener: (patch: Partial<S>, particle: Particle<S>) => void): this;
-    on(event: "state", listener: (state: S, particle: Particle<S>) => void): this;
-    on(event: "change", listener: (current: S, patch: Partial<S>, previous: S, particle: Particle<S>) => void): this;
-
-    on(event: "connect", listener: (particle: Particle<S>) => void): this;
-    on(event: "disconnect", listener: (particle: Particle<S>) => void): this;
-    on(event: string | symbol, listener: (...args: any[]) => void): this {
-        super.on(event, listener);
-        return this;
-    }
-
 }
