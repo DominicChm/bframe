@@ -17,13 +17,6 @@ export interface IParticleTypeDefinition<TParticleState> {
      */
     description: string;
 
-    /**
-     * The C type used to encode variable IDs. Usually uint8, but can go up to uint32 if needed to support more
-     * variable fields.
-     */
-    varIdCType: CType<number>
-
-
     endian: "little" | "big"
 
     defaultInitialState: TParticleState;
