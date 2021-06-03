@@ -14,6 +14,6 @@ export class TestConnector extends Connector {
 
     pushData(data: Buffer) {
         //Delay pushing a tick to allow following awaits to execute.
-        process.nextTick(() => this.push(data, this.response.resolve));
+        setTimeout(() => this.push(data, this.response.resolve), 1);
     }
 }
