@@ -2,7 +2,7 @@ import {cString, double, uint16, uint8} from "c-type-util";
 import {
     IParticleTypeDefinition, ISystemParticleDefinition,
     IVariableDefinition
-} from "bc/constellation-manager";
+} from "bc/constellation";
 
 
 const uint16_val: IVariableDefinition<number> = {
@@ -91,7 +91,6 @@ export const testParticleTypeDefinition: IParticleTypeDefinition<ITestParticleSt
     description: "A test particle",
     readable_name: "Test Particle",
     endian: "little",
-    varIdCType: uint8,
     variables: {
         uint16_val,
         double_val,
