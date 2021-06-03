@@ -1,7 +1,20 @@
 import {Constellation} from "../Constellation";
-import {testParticleTypeDefinition, testParticleSystemDefinition} from "./defTestParticle";
+import {testParticleTypeDefinition, testParticleSystemDefinition, ITestParticleState} from "./defTestParticle";
 import {TestConnector} from "./testUtil";
-import {EServerOp, OpCT, ParticleErrorCT, ParticleHandshakeCT, RidCT, ServerErrorCT} from "../../protocol";
+import {
+    EClientOp,
+    EServerOp,
+    HandshakeResponseCT,
+    OpCT,
+    ParticleErrorCT,
+    ParticleHandshakeCT,
+    RidCT,
+    ServerErrorCT, TimestampCT, TimestampHeaderCT
+} from "../../protocol";
+import {VarIdCT} from "../../protocol/ctypes/VarIdCT";
+import {uint16} from "c-type-util";
+import * as util from "util";
+import {DeferredPromise} from "../../util";
 
 // Creates a ParticleManager and connects a single WS to it.
 async function setup() {
@@ -58,7 +71,7 @@ it("responds with error on invalid typename", async () => {
 
 });
 
-it("sends an initial state update", async () => {
+it.skip("sends an initial state update", async () => {
     const {connector, constellation, uid, typeName} = await setup();
 
     connector.pushData(ParticleHandshakeCT.allocLE({
@@ -69,6 +82,66 @@ it("sends an initial state update", async () => {
 
     const handshakeRes = await connector.response;
     const stateUpdate = await connector.response;
+});
+
+it("returns a particle based on uid", async () => {
+    const {connector, constellation, uid, typeName} = await setup();
+
+    const p = constellation.particle(uid);
+    expect(p).not.toBeUndefined();
+});
 
 
-})
+it("emits on a particle state update", async () => {
+    const {connector, constellation, uid, typeName} = await setup();
+    const particle = constellation.particle(uid);
+
+    const patchEvent = DeferredPromise.Promisify(particle.on.bind(particle), "patch");
+    const stateEvent = DeferredPromise.Promisify(particle.on.bind(particle), "state");
+    const changeEvent = DeferredPromise.Promisify(particle.on.bind(particle), "change");
+
+
+    //Perform a handshake
+    connector.pushData(ParticleHandshakeCT.allocLE({
+        op: 0x00,
+        typeName,
+        uid
+    }));
+    const {rid} = HandshakeResponseCT.readLE(await connector.response);
+
+    // Send a state update in to Constellation through our test connector.
+    const stateUpdatePayload = Buffer.concat([
+        TimestampHeaderCT.allocLE({op: 0x10, timestamp: 0, rid}),
+        VarIdCT.allocLE(0x00),
+        uint16.allocLE(0xFF),
+    ]);
+    connector.pushData(stateUpdatePayload);
+
+    const [patch, state, change] = await Promise.all([patchEvent, stateEvent, changeEvent])
+
+    expect(patch).toEqual([{uint16_val: 0xFF}, particle])
+    expect(state).toEqual([{
+        uint16_val: 0xFF,
+        double_val: 0,
+        string_val: "str",
+        uint16_server_val: 0
+    }, particle])
+    expect(change).toEqual([
+        {
+            uint16_val: 0xFF,
+            double_val: 0,
+            string_val: "str",
+            uint16_server_val: 0
+        },
+        {
+            uint16_val: 0xFF
+        },
+        {
+            uint16_val: 0,
+            double_val: 0,
+            string_val: "str",
+            uint16_server_val: 0
+        },
+        particle])
+
+});
