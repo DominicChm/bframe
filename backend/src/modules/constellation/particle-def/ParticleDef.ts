@@ -11,12 +11,19 @@ type TParserMap = {
     def: IVariableDefinition<any>
 }[]
 
+
 type TSerializerMap<TState> = {
     [k in keyof TState]: {
         varId: number,
         cType: CTypeEndian<any>,
         def: IVariableDefinition<any>
     }
+}
+
+type TStateUpdate<TState> = {
+    rid: number,
+    timestamp: number,
+    patch: Partial<TState>,
 }
 
 /**
@@ -26,12 +33,14 @@ export class ParticleDef<TState> {
     private readonly _def: IParticleTypeDefinition<TState>;
     private readonly _var: TVar<TState>;
 
-
     private readonly _varIDParser: CTypeEndian<number>;
     private readonly _opParser: CTypeEndian<number>;
 
-
+    //Maps type definition variable indexes to an object containing necessary utilities to parse binary state.
     private readonly _parserInfo: TParserMap;
+
+    //Maps variable (state) keys to objects containing utilities necessary to serialize any given variable
+    //in the type definition
     private readonly _serializerInfo: TSerializerMap<TState>;
 
     public readonly endian: "little" | "big";
@@ -70,6 +79,10 @@ export class ParticleDef<TState> {
 
     }
 
+    /**
+     * Returns the variable definition that is associated with the passed index or symbol within the loaded type definition
+     * @param indexOrSymbol
+     */
     varDef(indexOrSymbol: string | number): IVariableDefinition<any> {
         if (typeof indexOrSymbol === "string")
             return this._serializerInfo[indexOrSymbol].def;
@@ -77,6 +90,11 @@ export class ParticleDef<TState> {
             return this._parserInfo[indexOrSymbol].def;
     }
 
+    /**
+     * Parses a buffer into a javascript object based on the currently loaded type definition
+     * @param buf - The buffer containing a partial data patch. This must have been created to the same spec as the loaded type definition.
+     * @param offset - The offset in the buffer at which to begin parsing.
+     */
     parseDataPatch(buf: Buffer, offset: number = 0): Partial<TState> {
         const patch: Partial<TState> = {};
         for (let i = offset; i < buf.length; i) {
@@ -98,6 +116,11 @@ export class ParticleDef<TState> {
         return patch;
     }
 
+    /**
+     * Takes a javascript object (that matches the current typedef) and serializes it to a buffer.
+     * @param patch
+     * @param offset
+     */
     serializeDataPatch(patch: Partial<TState>, offset: number = 0): Buffer {
         const parts: Buffer[] = [];
 
@@ -127,7 +150,7 @@ export class ParticleDef<TState> {
      * @param buf
      * @param offset
      */
-    parseStateUpdate(buf: Buffer, offset: number = 0) {
+    parseStateUpdate(buf: Buffer, offset: number = 0): TStateUpdate<TState> {
         const {data, rid, timestamp} = parseStateUpdate(buf, this.endian);
         const patch = this.parseDataPatch(data);
         return {
@@ -137,7 +160,11 @@ export class ParticleDef<TState> {
         }
     }
 
-    composeStateUpdate(patch: Partial<TState>) {
+    /**
+     * Composes a full state update packet from the passed patch
+     * @param patch - The patch to serialize
+     */
+    composeStateUpdate(patch: Partial<TState>): Buffer {
         const data = this.serializeDataPatch(patch);
         return composeStateUpdate(data, this.endian);
     }
