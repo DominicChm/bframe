@@ -118,6 +118,7 @@ export class ParticleDef<TState> {
 
     /**
      * Takes a javascript object (that matches the current typedef) and serializes it to a buffer.
+     * ONLY SERIALIZES FIELDS THAT ARE OWNED BY THE SERVER!!!!!!!!!!!
      * @param patch
      * @param offset
      */

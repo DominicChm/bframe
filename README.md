@@ -27,6 +27,7 @@ There isn't much to say, aside from this is an extraordinarily ambitious project
         - [x] Event Firing
         - [x] Module construction
         - [ ] Module testing
+        - [ ] State transmission to particle
         - [x] Generalized Message Parsing
         - [x] Module definition interfaces
 

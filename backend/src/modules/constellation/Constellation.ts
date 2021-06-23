@@ -112,16 +112,21 @@ export class Constellation extends EventEmitter {
         //If no particle to handle this UID in def, create a new particle.
         const rid = this._ridRegistry.allocRid(uid);
 
-        if (!this.particle(uid)) {
-            const p = new Particle()
+        let particle = this.particle(uid)
+        if (!particle) {
+            particle = new Particle()
                 .setTDef(tDef)
                 .setRid(rid)
                 .setUid(uid);
 
-            this._router.addEndpoint(uid, p);
+            this._router.addEndpoint(uid, particle);
         }
 
         await respond(serializeHandshakeResponse(rid));
+
+        //Forward the handshake to the particle after the handshake has finished.
+        particle.push(data, respond);
+
     }
 
     registerParticleType(tDef: IParticleTypeDefinition<any>) {

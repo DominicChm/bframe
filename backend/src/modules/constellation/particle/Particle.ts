@@ -18,6 +18,7 @@ export class Particle<S extends Object> extends EventEmitter implements RouterEn
     public endian: "little" | "big";
     public assigned: boolean = false;
 
+    private _respond: ResponseFn;
     private _def: ParticleDef<S>;
     private _pDef: ISystemParticleDefinition<S>;
     private _tDef: IParticleTypeDefinition<S>;
@@ -61,11 +62,21 @@ export class Particle<S extends Object> extends EventEmitter implements RouterEn
 
     //Router endpoint implementation
     push(data: Buffer, respond: ResponseFn): void {
+        this._respond = respond;
+
         const op = this._def.parseOp(data);
         switch (op) {
+            case EClientOp.HANDSHAKE:
+                this._receiveHandshake(data, respond);
+                break
             case EClientOp.STATE_UPDATE:
                 this._receiveStateUpdate(data);
         }
+    }
+
+    private async _receiveHandshake(data: Buffer, respond: ResponseFn) {
+        console.log(this._dState)
+        await this._sendState(this._dState);
     }
 
     /**
@@ -91,15 +102,25 @@ export class Particle<S extends Object> extends EventEmitter implements RouterEn
      */
     private _patch(fn: PatchFn<S>, restrictKeys = true) {
         // Setup patch by copying current state object and creating new proxy to wrap it
-        const proxyHandler = new MutableProxy(restrictKeys ? this._blockedStateKeys : undefined);
+        const proxyHandler = new MutableProxy<S>(restrictKeys ? this._blockedStateKeys : undefined);
         const patchable = new Proxy<S>(_.cloneDeep(this._dState), proxyHandler);
 
         // Pass the object proxy to the passed patcher function
         fn(patchable);
 
+        //proxyHandler now has last state, current state, and patch. Send this patch to the particle
+        this._sendState(proxyHandler.patch);
+
         // Emit new state
         this.emit("patch", proxyHandler.patch, this);
         this.emit("state", proxyHandler.current, this);
         this.emit("change", proxyHandler.current, proxyHandler.patch, proxyHandler.previous, this);
+    }
+
+    private async _sendState(state: Partial<S>) {
+        const updatePatch = this._def.composeStateUpdate(state);
+        if (this._respond)
+            await this._respond(updatePatch);
+
     }
 }
