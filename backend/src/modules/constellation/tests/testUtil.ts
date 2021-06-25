@@ -1,19 +1,20 @@
 import {Connector, ResponseFn, RouterEndpoint} from "../router/Router";
-import {DeferredPromise} from "../../util";
+import EventEmitter from "events";
 
-export class TestEndpoint implements RouterEndpoint {
-    public data = new DeferredPromise();
-
+export class TestEndpoint extends EventEmitter implements RouterEndpoint {
     push(data: Buffer, respond: ResponseFn): void {
-        this.data.resolve(data);
+        this.emit("data", data);
     }
 }
 
 export class TestConnector extends Connector {
-    response = new DeferredPromise<Buffer>();
+    on(event: "data", listener: (data: Buffer, respond: ResponseFn) => void): this;
+    on(event: "response", listener: (data: Buffer) => void): this;
+    on(event, listener) {
+        return super.on(event, listener);
+    }
 
     pushData(data: Buffer) {
-        //Delay pushing a tick to allow following awaits to execute.
-        setTimeout(() => this.push(data, this.response.resolve), 1);
+        this.push(data, (buf) => this.emit("response", buf))
     }
 }

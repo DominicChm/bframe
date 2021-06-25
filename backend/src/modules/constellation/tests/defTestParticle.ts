@@ -80,7 +80,7 @@ export const testParticleSystemDefinition: ISystemParticleDefinition<ITestPartic
     initialState: {
         double_val: 0.00,
         string_val: "str",
-        uint16_server_val: 0,
+        uint16_server_val: 511,
         uint16_val: 0,
     },
     uid: "uid"

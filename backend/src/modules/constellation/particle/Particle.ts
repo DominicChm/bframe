@@ -75,7 +75,6 @@ export class Particle<S extends Object> extends EventEmitter implements RouterEn
     }
 
     private async _receiveHandshake(data: Buffer, respond: ResponseFn) {
-        console.log(this._dState)
         await this._sendState(this._dState);
     }
 
